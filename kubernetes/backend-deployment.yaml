@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pizza-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: pizza-service
+  template:
+    metadata:
+      labels:
+        app: pizza-service
+    spec:
+      containers:
+      - name: pizza-service
+        image: nathprz/pizza-service:1.0
+        ports:
+        - containerPort: 3000
+        env:
+        - name: DB_HOST
+          value: mysql
+        - name: DB_USER
+          value: pizza_user
+        - name: DB_PASSWORD
+          value: pizza_password
+        - name: DB_NAME
+          value: pizza_db
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pizza-service
+spec:
+  selector:
+    app: pizza-service
+  ports:
+  - port: 80
+    targetPort: 3000
+  type: ClusterIP
