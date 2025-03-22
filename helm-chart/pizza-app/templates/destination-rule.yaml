@@ -1,0 +1,29 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: {{ .Release.Name }}-pizza-service
+spec:
+  host: {{ .Release.Name }}-pizza-service
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: {{ .Release.Name }}-notification-service
+spec:
+  host: {{ .Release.Name }}-notification-service
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: {{ .Release.Name }}-pizza-frontend
+spec:
+  host: {{ .Release.Name }}-pizza-frontend
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN

@@ -1,0 +1,48 @@
+# Configuration globale des réplicas
+replicaCount:
+  frontend: 2
+  backend: 2
+  notification: 1
+
+# Configuration des images
+image:
+  registry: docker.io
+  repository:
+    frontend: nathprz/pizza-frontend
+    backend: nathprz/pizza-service
+    notification: nathprz/notification-service
+    mysql: nathprz/pizza-db
+  tag:
+    frontend: "1.0"
+    backend: "1.0"
+    notification: "1.0"
+    mysql: "1.0"
+  pullPolicy: IfNotPresent
+
+# Configuration des services
+service:
+  type: ClusterIP
+  frontend:
+    port: 80
+  backend:
+    port: 80
+  notification:
+    port: 80
+  mysql:
+    port: 3306
+
+# Configuration de MySQL
+mysql:
+  rootPassword: password
+  database: pizza_db
+  user: pizza_user
+  password: pizza
+  storage: 1Gi
+
+# Configuration d'Istio
+istio:
+  enabled: true
+
+# Configuration de l'Ingress (utilisé si istio.enabled = false)
+ingress:
+  host: pizza.local

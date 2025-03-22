@@ -12,6 +12,10 @@ spec:
       labels:
         app: pizza-service
     spec:
+      initContainers:
+      - name: wait-for-mysql
+        image: busybox
+        command: ['sh', '-c', 'until nc -z mysql 3306; do echo waiting for MySQL; sleep 2; done;']
       containers:
       - name: pizza-service
         image: nathprz/pizza-service:1.0
@@ -23,9 +27,13 @@ spec:
         - name: DB_USER
           value: pizza_user
         - name: DB_PASSWORD
-          value: pizza_password
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: user-password
         - name: DB_NAME
           value: pizza_db
+
 ---
 apiVersion: v1
 kind: Service

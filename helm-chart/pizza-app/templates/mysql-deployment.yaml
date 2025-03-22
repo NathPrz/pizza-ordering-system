@@ -1,38 +1,38 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mysql
+  name: {{ .Release.Name }}-mysql
 spec:
   selector:
     matchLabels:
-      app: mysql
+      app: {{ .Release.Name }}-mysql
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: mysql
+        app: {{ .Release.Name }}-mysql
     spec:
       containers:
       - name: mysql
-        image: nathprz/pizza-db:1.0
+        image: {{ .Values.image.registry }}/{{ .Values.image.repository.mysql }}:{{ .Values.image.tag.mysql }}
         env:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mysql-secret
+              name: {{ .Release.Name }}-mysql-secret
               key: root-password
         - name: MYSQL_DATABASE
-          value: pizza_db
+          value: {{ .Values.mysql.database }}
         - name: MYSQL_USER
-          value: pizza_user
+          value: {{ .Values.mysql.user }}
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mysql-secret
+              name: {{ .Release.Name }}-mysql-secret
               key: user-password
         ports:
-        - containerPort: 3306
+        - containerPort: {{ .Values.service.mysql.port }}
           name: mysql
         volumeMounts:
         - name: mysql-persistent-storage
@@ -40,16 +40,16 @@ spec:
       volumes:
       - name: mysql-persistent-storage
         persistentVolumeClaim:
-          claimName: mysql-pvc
+          claimName: {{ .Release.Name }}-mysql-pvc
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql
+  name: {{ .Release.Name }}-mysql
 spec:
   selector:
-    app: mysql
+    app: {{ .Release.Name }}-mysql
   ports:
-  - port: 3306
-    targetPort: 3306  
-  type: ClusterIP  
+  - port: {{ .Values.service.mysql.port }}
+    targetPort: {{ .Values.service.mysql.port }}
+  type: ClusterIP

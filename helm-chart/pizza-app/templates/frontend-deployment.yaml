@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-pizza-frontend
+spec:
+  replicas: {{ .Values.replicaCount.frontend }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-pizza-frontend
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-pizza-frontend
+    spec:
+      containers:
+      - name: pizza-frontend
+        image: {{ .Values.image.registry }}/{{ .Values.image.repository.frontend }}:{{ .Values.image.tag.frontend }}
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-pizza-frontend
+spec:
+  selector:
+    app: {{ .Release.Name }}-pizza-frontend
+  ports:
+  - port: {{ .Values.service.frontend.port }}
+    targetPort: 80
+  type: {{ .Values.service.type }}

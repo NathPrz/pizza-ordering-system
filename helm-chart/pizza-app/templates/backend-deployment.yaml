@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-pizza-service
+spec:
+  replicas: {{ .Values.replicaCount.backend }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-pizza-service
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-pizza-service
+    spec:
+      initContainers:
+      - name: wait-for-mysql
+        image: busybox
+        command: ['sh', '-c', 'until nc -z {{ .Release.Name }}-mysql {{ .Values.service.mysql.port }}; do echo waiting for MySQL; sleep 2; done;']
+      containers:
+      - name: pizza-service
+        image: {{ .Values.image.registry }}/{{ .Values.image.repository.backend }}:{{ .Values.image.tag.backend }}
+        ports:
+        - containerPort: 3000
+        env:
+        - name: DB_HOST
+          value: {{ .Release.Name }}-mysql
+        - name: DB_USER
+          value: {{ .Values.mysql.user }}
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-mysql-secret
+              key: user-password
+        - name: DB_NAME
+          value: {{ .Values.mysql.database }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-pizza-service
+spec:
+  selector:
+    app: {{ .Release.Name }}-pizza-service
+  ports:
+  - port: {{ .Values.service.backend.port }}
+    targetPort: 3000
+  type: {{ .Values.service.type }}

@@ -1,0 +1,54 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: pizza-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: pizza-virtualservice
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - pizza-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /api/orders
+    route:
+    - destination:
+        host: pizza-service
+        port:
+          number: 80
+  - match:
+    - uri:
+        prefix: /api/pizzas
+    route:
+    - destination:
+        host: pizza-service
+        port:
+          number: 80
+  - match:
+    - uri:
+        prefix: /api/notifications
+    route:
+    - destination:
+        host: notification-service
+        port:
+          number: 80
+  - route:
+    - destination:
+        host: pizza-frontend
+        port:
+          number: 80

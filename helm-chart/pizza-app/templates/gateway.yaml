@@ -1,0 +1,56 @@
+{{- if .Values.istio.enabled }}
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: {{ .Release.Name }}-pizza-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ .Release.Name }}-pizza-virtualservice
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - {{ .Release.Name }}-pizza-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /api/orders
+    route:
+    - destination:
+        host: {{ .Release.Name }}-pizza-service
+        port:
+          number: {{ .Values.service.backend.port }}
+  - match:
+    - uri:
+        prefix: /api/pizzas
+    route:
+    - destination:
+        host: {{ .Release.Name }}-pizza-service
+        port:
+          number: {{ .Values.service.backend.port }}
+  - match:
+    - uri:
+        prefix: /api/notifications
+    route:
+    - destination:
+        host: {{ .Release.Name }}-notification-service
+        port:
+          number: {{ .Values.service.notification.port }}
+  - route:
+    - destination:
+        host: {{ .Release.Name }}-pizza-frontend
+        port:
+          number: {{ .Values.service.frontend.port }}
+{{- end }}

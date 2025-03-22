@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 
 // Configuration de la base de données
 const dbConfig = {
-  host: process.env.DB_HOST || 'localhost',
+  host: process.env.DB_HOST || 'mysql-service',
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || 'password',
   database: process.env.DB_NAME || 'pizza_db'
@@ -91,6 +91,14 @@ app.post('/orders', async (req, res) => {
     await connection.commit();
     await connection.end();
     
+    // Envoyer une notification
+    sendNotification(
+      orderId,
+      customer_name,
+      phone_number,
+      `Votre commande #${orderId} a été reçue et est en cours de préparation.`
+    );
+    
     res.status(201).json({ 
       message: 'Commande créée avec succès', 
       order_id: orderId 
@@ -134,6 +142,32 @@ app.get('/orders/:id', async (req, res) => {
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });
+
+// Fonction pour envoyer une notification
+async function sendNotification(orderId, customerName, phone, message) {
+  try {
+    const notificationServiceUrl = process.env.NOTIFICATION_SERVICE_URL || 'http://notification-service';
+    const response = await fetch(`${notificationServiceUrl}/notify`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        orderId,
+        customerName,
+        phone,
+        message
+      }),
+    });
+    
+    const data = await response.json();
+    console.log('Réponse du service de notification:', data);
+    return data;
+  } catch (error) {
+    console.error('Erreur lors de l\'envoi de la notification:', error);
+    return null;
+  }
+}
 
 // Démarrer le serveur
 app.listen(PORT, () => {

@@ -1,9 +1,9 @@
 FROM mysql:8.0
 
-ENV MYSQL_ROOT_PASSWORD=password
-ENV MYSQL_DATABASE=pizza_db
-ENV MYSQL_USER=pizza_user
-ENV MYSQL_PASSWORD=pizza_password
+ENV MYSQL_ROOT_PASSWORD=password \
+    MYSQL_DATABASE=pizza_db \
+    MYSQL_USER=pizza_user \
+    MYSQL_PASSWORD=pizza
 
 COPY init.sql /docker-entrypoint-initdb.d/
 
