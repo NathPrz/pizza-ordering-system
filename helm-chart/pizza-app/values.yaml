@@ -13,7 +13,7 @@ image:
     notification: nathprz/notification-service
     mysql: nathprz/pizza-db
   tag:
-    frontend: "1.0"
+    frontend: "1.1"
     backend: "1.0"
     notification: "1.0"
     mysql: "1.0"
