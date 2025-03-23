@@ -11,14 +11,28 @@ function App() {
   });
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderId, setOrderId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   useEffect(() => {
     // Récupérer la liste des pizzas depuis l'API
+    setLoading(true);
     fetch('/api/pizzas')
-      .then(response => response.json())
-      .then(data => setPizzas(data))
-      .catch(error => console.error('Erreur lors de la récupération des pizzas:', error));
-  }, []);
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Erreur lors de la récupération des pizzas');
+      }
+      return response.json();
+    })
+    .then(data => {
+      setPizzas(data);
+      setLoading(false);
+    })
+    .catch(error => {
+      console.error('Erreur lors de la récupération des pizzas:', error);
+      setLoading(false);
+    });
+}, []);
 
   const addToCart = (pizza) => {
     const existingItem = cart.find(item => item.id === pizza.id);
@@ -85,6 +99,7 @@ function App() {
         console.log('Commande créée:', data);
         setOrderPlaced(true);
         setOrderId(data.order_id);
+        setShowConfirmation(true);
         setCart([]);
       })
       .catch(error => console.error('Erreur lors de la création de la commande:', error));
@@ -111,16 +126,22 @@ function App() {
           <div className="container">
             <div className="menu">
               <h2>Notre Menu</h2>
-              <div className="pizzas-list">
-                {pizzas.map(pizza => (
-                  <div key={pizza.id} className="pizza-card">
-                    <h3>{pizza.name}</h3>
-                    <p>{pizza.description}</p>
-                    <p className="price">{pizza.price} €</p>
-                    <button onClick={() => addToCart(pizza)}>Ajouter au panier</button>
-                  </div>
-                ))}
-              </div>
+              
+              {loading ? (
+                <div className="loading">Chargement des pizzas...</div>
+              ) : (
+                <div className="pizzas-list">
+                  {pizzas.map(pizza => (
+                    <div key={pizza.id} className="pizza-card">
+                      <h3>{pizza.name}</h3>
+                      <p>{pizza.description}</p>
+                      <p className="price">{pizza.price.toFixed(2)} €</p>
+                      <img src={pizza.image_url} alt={pizza.name} />
+                      <button onClick={() => addToCart(pizza)}>Ajouter au panier</button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="cart">
@@ -132,14 +153,19 @@ function App() {
                   <ul>
                     {cart.map(item => (
                       <li key={item.id}>
-{item.name} x {item.quantity} - {(item.price * item.quantity).toFixed(2)} €
-                        <button onClick={() => removeFromCart(item.id)}>-</button>
-                        <button onClick={() => addToCart(item)}>+</button>
+                        <div className="item-info">
+                          <strong>{item.name}</strong> x {item.quantity}
+                          <div>{(item.price * item.quantity).toFixed(2)} €</div>
+                        </div>
+                        <div className="item-actions">
+                          <button onClick={() => removeFromCart(item.id)}>-</button>
+                          <button onClick={() => addToCart(item)}>+</button>
+                        </div>
                       </li>
                     ))}
                   </ul>
                   <div className="cart-total">
-                    <strong>Total: {cartTotal.toFixed(2)} €</strong>
+                    Total: {cartTotal.toFixed(2)} €
                   </div>
                 </>
               )}
@@ -148,31 +174,37 @@ function App() {
                 <h3>Vos Informations</h3>
                 <form>
                   <div className="form-group">
-                    <label>Nom</label>
+                    <label htmlFor="name">Nom</label>
                     <input
                       type="text"
+                      id="name"
                       name="name"
                       value={customerInfo.name}
                       onChange={handleInputChange}
+                      placeholder="Votre nom complet"
                       required
                     />
                   </div>
                   <div className="form-group">
-                    <label>Adresse</label>
+                    <label htmlFor="address">Adresse</label>
                     <textarea
+                      id="address"
                       name="address"
                       value={customerInfo.address}
                       onChange={handleInputChange}
+                      placeholder="Adresse de livraison"
                       required
                     ></textarea>
                   </div>
                   <div className="form-group">
-                    <label>Téléphone</label>
+                    <label htmlFor="phone">Téléphone</label>
                     <input
                       type="tel"
+                      id="phone"
                       name="phone"
                       value={customerInfo.phone}
                       onChange={handleInputChange}
+                      placeholder="Numéro de téléphone"
                       required
                     />
                   </div>
@@ -194,6 +226,18 @@ function App() {
       <footer>
         <p>&copy; 2025 Pizza Express - Service de Commande en Ligne</p>
       </footer>
+
+      {/* Modal de confirmation */}
+      {showConfirmation && (
+        <div className="modal">
+          <div className="modal-content">
+            <h2>Merci pour votre commande!</h2>
+            <p>Votre commande #{orderId} a été enregistrée et est en cours de préparation.</p>
+            <p>Vous recevrez bientôt une notification par SMS.</p>
+            <button onClick={() => setShowConfirmation(false)}>Fermer</button>
+          </div>
+        </div>
+      )}  
     </div>
   );
 }

@@ -5,6 +5,6 @@ ENV MYSQL_ROOT_PASSWORD=password \
     MYSQL_USER=pizza_user \
     MYSQL_PASSWORD=pizza
 
-COPY init.sql /docker-entrypoint-initdb.d/
+COPY ./init.sql /docker-entrypoint-initdb.d/
 
 EXPOSE 3306

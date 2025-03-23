@@ -2,13 +2,22 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mysql = require('mysql2/promise');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const corsOptions = {
+  origin: 'http://pizza.local',
+  optionsSuccessStatus: 200,
+};
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
+
 app.use(bodyParser.json());
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Configuration de la base de données
 const dbConfig = {
@@ -19,6 +28,10 @@ const dbConfig = {
 };
 
 // Routes
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK' });
+});
+
 app.get('/', (req, res) => {
   res.json({ message: 'Service de commande de pizzas opérationnel!' });
 });
@@ -26,13 +39,24 @@ app.get('/', (req, res) => {
 // Récupérer toutes les pizzas
 app.get('/pizzas', async (req, res) => {
   try {
+    console.log('Tentative de connexion à la base de données...');
     const connection = await mysql.createConnection(dbConfig);
+    console.log('Connexion réussie, exécution de la requête...');
     const [rows] = await connection.execute('SELECT * FROM pizzas');
+    console.log('Résultats de la requête:', rows);
     await connection.end();
+
+    if (!rows || rows.length === 0) {
+      return res.status(404).json({ error: 'Aucune pizza trouvée' });
+    }
+
     res.json(rows);
   } catch (error) {
-    console.error('Erreur lors de la récupération des pizzas:', error);
-    res.status(500).json({ error: 'Erreur lors de la récupération des pizzas' });
+    console.error('Erreur détaillée:', error);
+    res.status(500).json({ 
+      error: 'Erreur lors de la récupération des pizzas', 
+      details: error.message 
+    });
   }
 });
 
@@ -146,7 +170,7 @@ app.get('/orders/:id', async (req, res) => {
 // Fonction pour envoyer une notification
 async function sendNotification(orderId, customerName, phone, message) {
   try {
-    const notificationServiceUrl = process.env.NOTIFICATION_SERVICE_URL || 'http://notification-service';
+    const notificationServiceUrl = process.env.NOTIFICATION_SERVICE_URL || 'http://pizza-app-notification-service';
     const response = await fetch(`${notificationServiceUrl}/notify`, {
       method: 'POST',
       headers: {

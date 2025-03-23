@@ -17,6 +17,13 @@ spec:
         image: {{ .Values.image.registry }}/{{ .Values.image.repository.frontend }}:{{ .Values.image.tag.frontend }}
         ports:
         - containerPort: 80
+        volumeMounts:
+        - name: static-files
+          mountPath: /app/public
+      volumes:
+      - name: static-files
+        configMap:
+          name: {{ .Release.Name }}-static-files
 ---
 apiVersion: v1
 kind: Service

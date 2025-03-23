@@ -73,7 +73,7 @@ helm install pizza-app ./helm-chart/pizza-app --set replicaCount.frontend=3,serv
 
 3. Ou avec un fichier de valeurs personnalisé:
 ```
-helm install pizza-app ./helm-chart/pizza-app -f my-values.yaml
+helm install pizza-app ./helm-chart/pizza-app -f values.yaml
 ```
 
 4. Mise à jour d'un déploiement existant:
