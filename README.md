@@ -166,6 +166,7 @@ pizza-ordering-system/
 ![alt text](images-readme/Pods.png)
 ![alt text](images-readme/services.png)
 ![alt text](images-readme/get_svc.png)
+![alt text](images-readme/web.png)
 
 ## Déploiement dans le cloud
 
