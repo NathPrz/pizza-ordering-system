@@ -14,10 +14,16 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
-  useEffect(() => {
+ /* useEffect(() => {
     // Récupérer la liste des pizzas depuis l'API
     setLoading(true);
-    fetch(process.env.REACT_APP_API_BASE_URL + '/pizzas')
+    fetch(process.env.REACT_APP_API_BASE_URL + '/pizzas'){
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    })
     .then(response => {
       if (!response.ok) {
         throw new Error('Erreur lors de la récupération des pizzas');
@@ -32,6 +38,48 @@ function App() {
       console.error('Erreur lors de la récupération des pizzas:', error);
       setLoading(false);
     });
+}, []);*/
+useEffect(() => {
+  const fetchPizzas = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/pizzas`, {
+        method: 'GET',
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setPizzas(data);
+    } catch (error) {
+      console.error('Erreur API:', {
+        message: error.message,
+        stack: error.stack,
+        url: `${process.env.REACT_APP_API_BASE_URL}/pizzas`
+      });
+      // Solution de repli (mock data)
+      setPizzas([
+        {
+          id: 0,
+          name: "Pizza d'urgence",
+          description: "Données temporaires - API indisponible",
+          price: 15.5,
+          image_url: "/images/placeholder.jpg"
+        }
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchPizzas();
 }, []);
 
   const addToCart = (pizza) => {

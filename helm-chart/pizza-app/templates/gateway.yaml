@@ -50,7 +50,7 @@ spec:
     - destination:
         host: {{ $.Release.Name }}-pizza-service
         port:
-          number: {{ $.Values.service.backend.port }}
+          number: 3000
   {{- end }}
   {{- end }}
   

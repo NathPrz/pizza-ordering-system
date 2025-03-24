@@ -13,21 +13,23 @@ image:
     notification: nathprz/notification-service
     mysql: nathprz/pizza-db
   tag:
-    frontend: "2.2"
-    backend: "1.7"
+    frontend: "2.8"
+    backend: "2.6"
     notification: "1.0"
     mysql: "1.1"
   pullPolicy: IfNotPresent
 
 # Configuration des services
 service:
-  type: ClusterIP #NodePort à tester
+  type: NodePort #ClusterIP
   frontend:
     port: 80
     targetPort: 80
   backend:
-    port: 80
+    port: 3000
     targetPort: 3000
+    selector:
+      app: pizza-app-pizza-service
   notification:
     port: 80
     targetPort: 3001
@@ -65,6 +67,17 @@ istio:
       secretName: "pizza-tls-secret"
   virtualService:
     enabled: true
+    corsPolicy:
+      allowOrigins:
+        - "http://pizza.local"
+        - "https://pizza.local"
+        - "http://localhost:8080"
+        - "http://pizza-app-pizza-frontend"
+      allowCredentials: true
+      allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+      allowHeaders: ["content-type", "authorization"]
+      exposeHeaders: ["content-type"]
+      maxAge: "24h"
     timeouts:
       orders: 10s
       notifications: 5s

@@ -7,10 +7,23 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const corsOptions = {
+/*const corsOptions = {
   origin: 'http://pizza.local',
   optionsSuccessStatus: 200,
+};*/
+const corsOptions = {
+  origin: [
+    'http://pizza.local',
+    'http://localhost:8080',
+    'http://pizza-app-pizza-frontend',
+    'https://pizza-app-pizza-frontend'
+  ],
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 };
+
 
 // Middleware
 app.use((req, res, next) => {
@@ -47,7 +60,15 @@ app.get('/api/pizzas', async (req, res) => {
     console.log('Tentative de connexion à la base de données...');
     const connection = await mysql.createConnection(dbConfig);
     console.log('Connexion réussie, exécution de la requête...');
-    const [rows] = await connection.execute('SELECT * FROM pizzas');
+    const [rows] = await connection.execute(`
+      SELECT 
+        id, 
+        name, 
+        description, 
+        CAST(price AS CHAR) AS price, 
+        image_url 
+      FROM pizzas
+    `);
     console.log('Résultats de la requête:', rows);
     await connection.end();
 
@@ -55,7 +76,9 @@ app.get('/api/pizzas', async (req, res) => {
       return res.status(404).json({ error: 'Aucune pizza trouvée' });
     }
     res.setHeader('Content-Type', 'application/json');
-    res.json(rows);
+    res.json(rows.map(pizza => ({
+      ...pizza,
+      price: parseFloat(pizza.price)})));
   } catch (error) {
     console.error('Erreur détaillée:', error);
     res.status(500).json({ 

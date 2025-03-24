@@ -99,7 +99,7 @@ La configuration Helm permet de personnaliser facilement le déploiement:
 | `image.repository.frontend` | Image Docker du frontend | nathprz/pizza-frontend |
 | `image.repository.backend` | Image Docker du backend | nathprz/pizza-service |
 | `image.tag.frontend` | Tag de l'image frontend | 1.0 |
-| `service.type` | Type de service Kubernetes | ClusterIP |
+| `service.type` | Type de service Kubernetes | NodePort |
 | `mysql.storage` | Taille du stockage MySQL | 1Gi |
 | `istio.enabled` | Activer/désactiver Istio | true |
 | `ingress.host` | Nom d'hôte pour l'ingress | pizza.local |
@@ -161,6 +161,11 @@ pizza-ordering-system/
 ## Captures d'écran
 
 [Insérez ici des captures d'écran de l'application en fonctionnement]
+![alt text](images-readme/helmInstall.png)
+![alt text](images-readme/image.png)
+![alt text](images-readme/Pods.png)
+![alt text](images-readme/services.png)
+![alt text](images-readme/get_svc.png)
 
 ## Déploiement dans le cloud
 
@@ -188,3 +193,9 @@ Pour tester l'application, accédez à l'URL frontend et essayez de:
 2. Ajouter des pizzas au panier
 3. Passer une commande avec vos coordonnées
 4. Vérifier que vous recevez une confirmation
+
+## Labs
+William DEMASSIAS
+![alt text](images-readme/labs-William.png)
+Nathalia PEREZ RAMIREZ
+![alt text](images-readme/labs_Nathalia.png)
