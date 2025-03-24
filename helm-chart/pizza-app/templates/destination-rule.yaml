@@ -1,3 +1,7 @@
+{{- if .Values.istio.enabled }}
+{{- if .Values.istio.destinationRules.enabled }}
+
+{{- if .Values.service.backend.enabled }}
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
@@ -6,7 +10,14 @@ spec:
   host: {{ .Release.Name }}-pizza-service
   trafficPolicy:
     loadBalancer:
-      simple: ROUND_ROBIN
+      simple: {{ .Values.istio.destinationRules.loadBalancer | default "ROUND_ROBIN" }}
+    {{- if .Values.istio.destinationRules.connectionPool }}
+    connectionPool:
+      {{ toYaml .Values.istio.destinationRules.connectionPool | nindent 6 }}
+    {{- end }}
+{{- end }}
+
+{{- if .Values.service.notification.enabled }}
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
@@ -16,7 +27,14 @@ spec:
   host: {{ .Release.Name }}-notification-service
   trafficPolicy:
     loadBalancer:
-      simple: ROUND_ROBIN
+      simple: {{ .Values.istio.destinationRules.loadBalancer | default "ROUND_ROBIN" }}
+    {{- if .Values.istio.destinationRules.connectionPool }}
+    connectionPool:
+      {{ toYaml .Values.istio.destinationRules.connectionPool | nindent 6 }}
+    {{- end }}
+{{- end }}
+
+{{- if .Values.service.frontend.enabled }}
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
@@ -26,4 +44,12 @@ spec:
   host: {{ .Release.Name }}-pizza-frontend
   trafficPolicy:
     loadBalancer:
-      simple: ROUND_ROBIN
+      simple: {{ .Values.istio.destinationRules.loadBalancer | default "ROUND_ROBIN" }}
+    {{- if .Values.istio.destinationRules.connectionPool }}
+    connectionPool:
+      {{ toYaml .Values.istio.destinationRules.connectionPool | nindent 6 }}
+    {{- end }}
+{{- end }}
+
+{{- end }}
+{{- end }}

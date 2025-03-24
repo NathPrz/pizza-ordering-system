@@ -13,6 +13,11 @@ const corsOptions = {
 };
 
 // Middleware
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`);
+  next();
+});
+
 app.use(cors(corsOptions));
 
 app.use(bodyParser.json());
@@ -37,7 +42,7 @@ app.get('/', (req, res) => {
 });
 
 // Récupérer toutes les pizzas
-app.get('/pizzas', async (req, res) => {
+app.get('/api/pizzas', async (req, res) => {
   try {
     console.log('Tentative de connexion à la base de données...');
     const connection = await mysql.createConnection(dbConfig);
@@ -49,7 +54,7 @@ app.get('/pizzas', async (req, res) => {
     if (!rows || rows.length === 0) {
       return res.status(404).json({ error: 'Aucune pizza trouvée' });
     }
-
+    res.setHeader('Content-Type', 'application/json');
     res.json(rows);
   } catch (error) {
     console.error('Erreur détaillée:', error);
@@ -61,7 +66,7 @@ app.get('/pizzas', async (req, res) => {
 });
 
 // Récupérer une pizza par ID
-app.get('/pizzas/:id', async (req, res) => {
+app.get('/api/pizzas/:id', async (req, res) => {
   try {
     const connection = await mysql.createConnection(dbConfig);
     const [rows] = await connection.execute(
@@ -82,7 +87,7 @@ app.get('/pizzas/:id', async (req, res) => {
 });
 
 // Créer une nouvelle commande
-app.post('/orders', async (req, res) => {
+app.post('api/orders', async (req, res) => {
   const { customer_name, address, phone_number, pizzas } = req.body;
   
   if (!customer_name || !address || !phone_number || !pizzas || !pizzas.length) {

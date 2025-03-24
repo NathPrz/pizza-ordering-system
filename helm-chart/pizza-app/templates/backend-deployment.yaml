@@ -43,5 +43,5 @@ spec:
     app: {{ .Release.Name }}-pizza-service
   ports:
   - port: {{ .Values.service.backend.port }}
-    targetPort: 3000
+    targetPort: {{ .Values.service.backend.targetPort }}
   type: {{ .Values.service.type }}

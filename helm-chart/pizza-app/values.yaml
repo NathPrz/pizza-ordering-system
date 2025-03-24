@@ -13,23 +13,27 @@ image:
     notification: nathprz/notification-service
     mysql: nathprz/pizza-db
   tag:
-    frontend: "2.0"
-    backend: "1.5"
+    frontend: "2.2"
+    backend: "1.7"
     notification: "1.0"
     mysql: "1.1"
   pullPolicy: IfNotPresent
 
 # Configuration des services
 service:
-  type: ClusterIP
+  type: ClusterIP #NodePort à tester
   frontend:
     port: 80
+    targetPort: 80
   backend:
     port: 80
+    targetPort: 3000
   notification:
     port: 80
+    targetPort: 3001
   mysql:
     port: 3306
+    targetPort: 3306
 
 # Configuration de MySQL
 mysql:
@@ -42,7 +46,42 @@ mysql:
 # Configuration d'Istio
 istio:
   enabled: true
+  destinationRules:
+    enabled: true
+    loadBalancer: "ROUND_ROBIN"
+    connectionPool:
+      tcp:
+        maxConnections: 100
+      http:
+        http1MaxPendingRequests: 1024
+        maxRequestsPerConnection: 10
+  gateway:
+    enabled: true
+    hosts:
+      - "pizza.local"
+      - "www.pizza.local"
+    tls:
+      enabled: false
+      secretName: "pizza-tls-secret"
+  virtualService:
+    enabled: true
+    timeouts:
+      orders: 10s
+      notifications: 5s
+    retries:
+      orders: 3
+    routes:
+      backend:
+        paths:
+          - "/api/orders"
+          - "/api/pizzas"
+      notification:
+        paths:
+          - "/api/notifications"
+      frontend:
+        isDefault: true
 
 # Configuration de l'Ingress (utilisé si istio.enabled = false)
 ingress:
+  enabled: true
   host: pizza.local

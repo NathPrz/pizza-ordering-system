@@ -17,7 +17,7 @@ function App() {
   useEffect(() => {
     // Récupérer la liste des pizzas depuis l'API
     setLoading(true);
-    fetch('/api/pizzas')
+    fetch(process.env.REACT_APP_API_BASE_URL + '/pizzas')
     .then(response => {
       if (!response.ok) {
         throw new Error('Erreur lors de la récupération des pizzas');
@@ -87,7 +87,7 @@ function App() {
     };
 
     // Envoyer la commande à l'API
-    fetch('/api/orders', {
+    fetch(process.env.REACT_APP_API_BASE_URL + '/orders', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -136,7 +136,14 @@ function App() {
                       <h3>{pizza.name}</h3>
                       <p>{pizza.description}</p>
                       <p className="price">{pizza.price.toFixed(2)} €</p>
-                      <img src={pizza.image_url} alt={pizza.name} />
+                      <img 
+                        src={process.env.PUBLIC_URL + pizza.image_url} 
+                        alt={pizza.name} 
+                        onError={(e) => {
+                          e.target.onerror = null; 
+                          e.target.src = process.env.PUBLIC_URL + "/images/placeholder.jpg";
+                        }}
+                      />
                       <button onClick={() => addToCart(pizza)}>Ajouter au panier</button>
                     </div>
                   ))}

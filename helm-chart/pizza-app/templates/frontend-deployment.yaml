@@ -17,13 +17,6 @@ spec:
         image: {{ .Values.image.registry }}/{{ .Values.image.repository.frontend }}:{{ .Values.image.tag.frontend }}
         ports:
         - containerPort: 80
-        volumeMounts:
-        - name: static-files
-          mountPath: /app/public
-      volumes:
-      - name: static-files
-        configMap:
-          name: {{ .Release.Name }}-static-files
 ---
 apiVersion: v1
 kind: Service
@@ -34,5 +27,5 @@ spec:
     app: {{ .Release.Name }}-pizza-frontend
   ports:
   - port: {{ .Values.service.frontend.port }}
-    targetPort: 80
+    targetPort: {{ .Values.service.frontend.targetPort }}
   type: {{ .Values.service.type }}

@@ -1,4 +1,4 @@
-{{- if not .Values.istio.enabled }}
+{{- if and (not .Values.istio.enabled) .Values.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -17,4 +17,11 @@ spec:
             name: {{ .Release.Name }}-pizza-service
             port:
               number: {{ .Values.service.backend.port }}
+      - path: /api/notifications
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Release.Name }}-notification-service
+            port:
+              number: {{ .Values.service.notification.port }}
 {{- end }}

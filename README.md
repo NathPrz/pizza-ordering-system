@@ -25,9 +25,9 @@ Le système est composé de plusieurs services:
 ### Prérequis
 
 - Docker
-- Minikube ou un cluster Kubernetes
+- Minikube
 - kubectl
-- Istio (optionnel)
+- Istio
 - Helm
 
 ### Installation locale
@@ -54,7 +54,7 @@ kubectl apply -f kubernetes/frontend-deployment.yaml
 kubectl apply -f kubernetes/ingress.yaml
 ```
 
-4. Si vous utilisez Istio:
+4. Istio:
 ```
 kubectl apply -f kubernetes/gateway.yaml
 ```
@@ -73,7 +73,7 @@ helm install pizza-app ./helm-chart/pizza-app --set replicaCount.frontend=3,serv
 
 3. Ou avec un fichier de valeurs personnalisé:
 ```
-helm install pizza-app ./helm-chart/pizza-app -f values.yaml
+helm install pizza-app ./helm-chart/pizza-app -f myvalues.yaml
 ```
 
 4. Mise à jour d'un déploiement existant:
