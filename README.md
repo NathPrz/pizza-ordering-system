@@ -1,92 +1,134 @@
-# Système de Commande de Pizzas - Projet Virtualisation
+# 🍕 Système de Commande de Pizzas - Projet Virtualisation
 
 Ce projet implémente un système de commande de pizzas en ligne avec une architecture microservices déployée sur Kubernetes.
 
-## Architecture
+## 🏗️ Architecture Système
 
 Le système est composé de plusieurs services:
-1. **Service de Commande (Backend)**: API REST développée en Node.js qui gère les pizzas et les commandes
-2. **Service de Notification**: Service qui envoie des notifications aux clients
-3. **Base de données MySQL**: Stocke les informations des pizzas et des commandes
-4. **Frontend**: Interface utilisateur développée en React
 
-## Technologies utilisées
+- **Service de Commande (Backend)**: 
+  - API REST développée en Node.js
+  - Gestion des pizzas et des commandes
+  - Implémentation avec Express
 
-- **Backend**: Node.js, Express
-- **Frontend**: React
-- **Base de données**: MySQL
-- **Conteneurisation**: Docker
-- **Orchestration**: Kubernetes
-- **Service Mesh**: Istio
-- **Gestion des déploiements**: Helm
+- **Service de Notification**: 
+  - Gestion des notifications clients
+  - Communication avec le backend
 
-## Déploiement
+- **Base de Données**: 
+  - MySQL 
+  - Stockage des informations sur les pizzas, commandes et clients
+  - Configuration avec persistent volume
 
-### Prérequis
+- **Frontend**: 
+  - Interface utilisateur réactive
+  - Développée en React
+  - Communication avec le backend via API REST
 
+## 🛠️ Technologies et Outils
+
+### Langages et Frameworks
+- Backend: Node.js, Express
+- Frontend: React
+- Base de données: MySQL
+
+### Infrastructure et Déploiement
+- Conteneurisation: Docker
+- Orchestration: Kubernetes
+- Service Mesh: Istio
+- Gestion des déploiements: Helm
+- Cloud: Compatible GKE (Google Kubernetes Engine)
+
+## 📋 Prérequis
+
+Avant de commencer, assurez-vous d'avoir installé:
 - Docker
 - Minikube
 - kubectl
 - Istio
 - Helm
 
-### Installation locale
+## 🚀 Installation et Déploiement
 
-1. Cloner le dépôt:
-```
+```bash
+# Cloner le dépôt
 git clone https://github.com/NathPrz/pizza-ordering-system.git
 cd pizza-ordering-system
-```
 
-2. Démarrer Minikube:
-```
+# Démarrer Minikube
 minikube start
+
+```
+### Configuration Docker
+
+Avant de déployer l'application, vous devez construire les images Docker. Pour chaque composant du système, un Dockerfile est fourni permettant de construire les images nécessaires au déploiement.
+
+```bash
+# Construire l'image du backend
+docker build -t pizza-service:latest ./backend
+
+# Construire l'image du frontend
+docker build -t pizza-frontend:latest ./frontend
+
+# Construire l'image du service de notification
+docker build -t notification-service:latest ./notification-service
+
+# Construire l'image de la base de données
+docker build -t pizza-db:latest ./database
+```
+⚠️ Points de Vigilance 
+- Assurez-vous que les images Docker correspondent aux spécifications dans les fichiers Kubernetes et Helm (values.yaml)
+- Vérifiez que les tags d'images dans values.yaml correspondent à vos images locales
+
+### Activation et Configuration d'Istio
+
+```bash
+# Télécharger Istio
+curl -L https://istio.io/downloadIstio | sh -
+cd istio-*
+export PATH=$PWD/bin:$PATH
+
+# Installer Istio sur Minikube
+istioctl install --set profile=demo -y
+
+# Activer l'injection automatique de sidecar sur le namespace default
+kubectl label namespace default istio-injection=enabled
 ```
 
-3. Déployer l'application avec Kubernetes (méthode traditionnelle):
-```
+### Méthode Traditionnelle Kubernetes
+
+```bash
+# Déployer les composants 
+kubectl apply -f kubernetes/gateway.yaml
 kubectl apply -f kubernetes/mysql-secret.yaml
 kubectl apply -f kubernetes/mysql-pv.yaml
 kubectl apply -f kubernetes/mysql-deployment.yaml
 kubectl apply -f kubernetes/backend-deployment.yaml
 kubectl apply -f kubernetes/notification-deployment.yaml
 kubectl apply -f kubernetes/frontend-deployment.yaml
-kubectl apply -f kubernetes/ingress.yaml
 ```
 
-4. Istio:
-```
-kubectl apply -f kubernetes/gateway.yaml
-```
+### Déploiement Helm (Recommandé)
 
-### Déploiement avec Helm (recommandé)
-
-1. Installation standard:
-```
+```bash
+# Installation standard
 helm install pizza-app ./helm-chart/pizza-app
-```
 
-2. Installation avec valeurs personnalisées:
-```
-helm install pizza-app ./helm-chart/pizza-app --set replicaCount.frontend=3,service.type=NodePort
-```
+# Installation personnalisée
+helm install pizza-app ./helm-chart/pizza-app \
+  --set replicaCount.frontend=3,service.type=NodePort
 
-3. Ou avec un fichier de valeurs personnalisé:
-```
+# Ou avec un fichier de valeurs personnalisé:
 helm install pizza-app ./helm-chart/pizza-app -f myvalues.yaml
-```
 
-4. Mise à jour d'un déploiement existant:
-```
+# Mise à jour d'un déploiement existant:
 helm upgrade pizza-app ./helm-chart/pizza-app
-```
 
-5. Désinstallation:
-```
+# Désinstallation:
 helm uninstall pizza-app
 ```
 
-### Configuration Helm
+### 🔧Configuration Helm
 
 La configuration Helm permet de personnaliser facilement le déploiement:
 
@@ -104,21 +146,48 @@ La configuration Helm permet de personnaliser facilement le déploiement:
 | `istio.enabled` | Activer/désactiver Istio | true |
 | `ingress.host` | Nom d'hôte pour l'ingress | pizza.local |
 
-5. Obtenir l'URL d'accès:
-```
-kubectl get svc
-```
+### Obtenir l'URL d'accès:
 
-Si vous utilisez Minikube:
-```
+```bash
+# Afficher les services
+kubectl get svc
+
+#Pour Minikube:
 minikube service pizza-app-pizza-frontend
 ```
 
-## Structure du projet
+## Déploiement dans le cloud
+
+Exemple de déploiement sur Google Cloud Platform:
+
+```bash
+# Créer un cluster GKE
+gcloud container clusters create pizza-cluster \
+  --zone europe-west1-b --num-nodes 3
+
+# Configurer kubectl
+gcloud container clusters get-credentials pizza-cluster --zone europe-west1-b
+
+# Déployer avec Helm
+helm install pizza-app ./helm-chart/pizza-app
+```
+
+## 🧪 Tests et Utilisation
+
+### Communication entre Services
+
+
+### Frontend
+1. Accéder à l'interface web
+2. Parcourir le menu de pizzas
+3. Ajouter des pizzas au panier
+4. Tenter de passer une commande
+
+## 📂 Structure du Projet
 
 ```
 pizza-ordering-system/
-├── backend/
+├── backend/            
 │   ├── server.js
 │   ├── package.json
 │   └── Dockerfile
@@ -160,7 +229,6 @@ pizza-ordering-system/
 
 ## Captures d'écran
 
-[Insérez ici des captures d'écran de l'application en fonctionnement]
 ![alt text](images-readme/helmInstall.png)
 ![alt text](images-readme/image.png)
 ![alt text](images-readme/Pods.png)
@@ -168,32 +236,11 @@ pizza-ordering-system/
 ![alt text](images-readme/get_svc.png)
 ![alt text](images-readme/web.png)
 
-## Déploiement dans le cloud
 
-Pour déployer dans Google Cloud Platform:
+## 👥 Contributeurs
 
-1. Créer un cluster GKE:
-```
-gcloud container clusters create pizza-cluster --zone europe-west1-b --num-nodes 3
-```
-
-2. Configurer kubectl:
-```
-gcloud container clusters get-credentials pizza-cluster --zone europe-west1-b
-```
-
-3. Déployer l'application avec Helm:
-```
-helm install pizza-app ./helm-chart/pizza-app
-```
-
-## Tests
-
-Pour tester l'application, accédez à l'URL frontend et essayez de:
-1. Parcourir le menu de pizzas
-2. Ajouter des pizzas au panier
-3. Passer une commande avec vos coordonnées
-4. Vérifier que vous recevez une confirmation
+- William DEMASSIAS
+- Nathalia PEREZ RAMIREZ
 
 ## Labs
 William DEMASSIAS
