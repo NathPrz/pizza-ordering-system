@@ -7,31 +7,15 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-/*const corsOptions = {
-  origin: 'http://pizza.local',
-  optionsSuccessStatus: 200,
-};*/
-const corsOptions = {
-  origin: [
-    'http://pizza.local',
-    'http://localhost:8080',
-    'http://pizza-app-pizza-frontend',
-    'https://pizza-app-pizza-frontend'
-  ],
-  optionsSuccessStatus: 200,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
-};
-
-
 // Middleware
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path}`);
   next();
 });
 
-app.use(cors(corsOptions));
+app.use(cors());
+
+app.options('*', cors());
 
 app.use(bodyParser.json());
 
@@ -110,7 +94,7 @@ app.get('/api/pizzas/:id', async (req, res) => {
 });
 
 // Créer une nouvelle commande
-app.post('api/orders', async (req, res) => {
+app.post('/api/orders', async (req, res) => {
   const { customer_name, address, phone_number, pizzas } = req.body;
   
   if (!customer_name || !address || !phone_number || !pizzas || !pizzas.length) {
@@ -162,7 +146,7 @@ app.post('api/orders', async (req, res) => {
 });
 
 // Récupérer le statut d'une commande
-app.get('/orders/:id', async (req, res) => {
+app.get('api/orders/:id', async (req, res) => {
   try {
     const connection = await mysql.createConnection(dbConfig);
     const [rows] = await connection.execute(

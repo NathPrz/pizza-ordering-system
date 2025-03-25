@@ -175,7 +175,13 @@ helm install pizza-app ./helm-chart/pizza-app
 ## 🧪 Tests et Utilisation
 
 ### Communication entre Services
+```bash
+# Aller dans un pod frontend
+kubectl exec -it <nom-du-pod> -c pizza-frontend -- sh
 
+# Test connexion vers le service backend 
+curl -v http://pizza-app-pizza-service.default.svc.cluster.local:3000/api/pizzas
+```
 
 ### Frontend
 1. Accéder à l'interface web
@@ -234,6 +240,7 @@ pizza-ordering-system/
 ![alt text](images-readme/Pods.png)
 ![alt text](images-readme/services.png)
 ![alt text](images-readme/get_svc.png)
+![alt text](images-readme/PotToPod1.png)
 ![alt text](images-readme/web.png)
 
 

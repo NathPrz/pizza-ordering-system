@@ -13,15 +13,15 @@ image:
     notification: nathprz/notification-service
     mysql: nathprz/pizza-db
   tag:
-    frontend: "2.8"
-    backend: "2.6"
+    frontend: "3.0"
+    backend: "2.8"
     notification: "1.0"
     mysql: "1.1"
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 # Configuration des services
 service:
-  type: NodePort #ClusterIP
+  type: ClusterIP #NodePort
   frontend:
     port: 80
     targetPort: 80
@@ -60,19 +60,15 @@ istio:
   gateway:
     enabled: true
     hosts:
-      - "pizza.local"
-      - "www.pizza.local"
+      - "pizza-app.local"
+      - "pizza-app.127.0.0.1.nip.io"
     tls:
       enabled: false
       secretName: "pizza-tls-secret"
   virtualService:
     enabled: true
     corsPolicy:
-      allowOrigins:
-        - "http://pizza.local"
-        - "https://pizza.local"
-        - "http://localhost:8080"
-        - "http://pizza-app-pizza-frontend"
+      allowOrigins: ["*"]
       allowCredentials: true
       allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
       allowHeaders: ["content-type", "authorization"]

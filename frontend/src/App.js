@@ -14,38 +14,13 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
- /* useEffect(() => {
-    // Récupérer la liste des pizzas depuis l'API
-    setLoading(true);
-    fetch(process.env.REACT_APP_API_BASE_URL + '/pizzas'){
-      mode: 'cors',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Erreur lors de la récupération des pizzas');
-      }
-      return response.json();
-    })
-    .then(data => {
-      setPizzas(data);
-      setLoading(false);
-    })
-    .catch(error => {
-      console.error('Erreur lors de la récupération des pizzas:', error);
-      setLoading(false);
-    });
-}, []);*/
 useEffect(() => {
   const fetchPizzas = async () => {
     setLoading(true);
     try {
       const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/pizzas`, {
         method: 'GET',
-        mode: 'cors',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
